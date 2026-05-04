@@ -15,6 +15,7 @@ world) every 1 s and publishes one MQTT message per aircraft *per change*.
 | `{prefix}/aircraft/{hex}` | full JSON state | yes | any field change |
 | `{prefix}/aircraft/{hex}` | empty | yes | aircraft not seen for `STALE_AFTER_SEC` |
 | `{prefix}/flight/{flight}/{hex}` | full JSON state | no | flight callsign known + state changed |
+| `{prefix}/carrier/{op}/{hex}` | full JSON state | no | callsign starts with an ICAO 3-letter operator code (e.g. `BAW`, `DAL`, `RYR`) |
 | `{prefix}/type/{type}/{hex}` | full JSON state | no | on every change (`adsb_icao`, `mlat`, `mode_s`, ...) |
 | `{prefix}/events/emergency/{hex}` | full JSON state | no | squawk in `7500`/`7600`/`7700` |
 | `{prefix}/status` | `online` / `offline` | yes | LWT + connect |

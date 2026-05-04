@@ -20,6 +20,9 @@ EMERGENCY_SQUAWKS = {"7500", "7600", "7700"}
 _VOLATILE_FIELDS = {"seen", "seen_pos", "rssi", "messages", "rc", "now"}
 
 _TOPIC_SAFE = re.compile(r"[^A-Z0-9_-]")
+# Operator code: three letters at the start of a callsign followed by at least
+# one more character (so plain regs like "G-ABCD" / "N12345" are excluded).
+_CARRIER_RE = re.compile(r"^([A-Z]{3})[A-Z0-9].*$")
 
 
 log = logging.getLogger("adsb-mqtt")
@@ -27,6 +30,13 @@ log = logging.getLogger("adsb-mqtt")
 
 def _safe_topic_segment(s: str) -> str:
     return _TOPIC_SAFE.sub("_", s.upper())
+
+
+def _carrier_code(flight: str | None) -> str | None:
+    if not flight:
+        return None
+    m = _CARRIER_RE.match(flight.upper())
+    return m.group(1) if m else None
 
 
 def _clean(ac: dict) -> dict:
@@ -63,6 +73,7 @@ class Bridge:
         self.aircraft_prefix = f"{cfg.mqtt_topic_prefix}/aircraft"
         self.flight_prefix = f"{cfg.mqtt_topic_prefix}/flight"
         self.type_prefix = f"{cfg.mqtt_topic_prefix}/type"
+        self.carrier_prefix = f"{cfg.mqtt_topic_prefix}/carrier"
         self.emergency_prefix = f"{cfg.mqtt_topic_prefix}/events/emergency"
 
         self.client = mqtt.Client(
@@ -178,6 +189,13 @@ class Bridge:
         if flight:
             self.client.publish(
                 f"{self.flight_prefix}/{_safe_topic_segment(flight)}/{hex_id}",
+                payload, qos=qos, retain=False,
+            )
+        # Fan-out: by carrier (ICAO 3-letter operator code parsed from callsign).
+        carrier = _carrier_code(flight)
+        if carrier:
+            self.client.publish(
+                f"{self.carrier_prefix}/{carrier}/{hex_id}",
                 payload, qos=qos, retain=False,
             )
         # Emergency events.
