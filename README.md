@@ -58,12 +58,16 @@ docker run --rm -e MQTT_HOST=your-broker ghcr.io/m0lte/adsb-mqtt:latest
 
 ## Run with docker compose
 
-The provided `docker-compose.yml` includes a local Mosquitto broker for
-convenience.
+The provided `docker-compose.yml` pulls the prebuilt image from GHCR and
+includes a local Mosquitto broker for convenience.
 
 ```sh
-docker compose up --build
+docker compose up
 ```
+
+To build the image locally instead of pulling, swap the `image:` line in
+`docker-compose.yml` for `build: .` (a comment in the file shows where) and
+run `docker compose up --build`.
 
 In another shell:
 
