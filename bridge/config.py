@@ -1,5 +1,6 @@
 import os
 from dataclasses import dataclass
+from urllib.parse import urlparse
 
 
 def _env_str(name: str, default: str) -> str:
@@ -39,11 +40,15 @@ class Config:
 
     @classmethod
     def from_env(cls) -> "Config":
+        adsb_url = _env_str(
+            "ADSB_URL",
+            "https://adsb.oarc.uk/re-api/?binCraft&zstd&box=-90,90,-180,180",
+        )
+        # Default the topic prefix to the upstream hostname so a single
+        # broker fanning in from multiple feeds keeps them separated.
+        default_prefix = urlparse(adsb_url).hostname or "adsb"
         return cls(
-            adsb_url=_env_str(
-                "ADSB_URL",
-                "https://adsb.oarc.uk/re-api/?binCraft&zstd&box=-90,90,-180,180",
-            ),
+            adsb_url=adsb_url,
             poll_interval_sec=_env_float("POLL_INTERVAL_SEC", 1.0),
             stale_after_sec=_env_float("STALE_AFTER_SEC", 60.0),
             http_timeout_sec=_env_float("HTTP_TIMEOUT_SEC", 10.0),
@@ -52,7 +57,7 @@ class Config:
             mqtt_username=_env_opt("MQTT_USERNAME"),
             mqtt_password=_env_opt("MQTT_PASSWORD"),
             mqtt_client_id=_env_str("MQTT_CLIENT_ID", "adsb-mqtt"),
-            mqtt_topic_prefix=_env_str("MQTT_TOPIC_PREFIX", "adsb").rstrip("/"),
+            mqtt_topic_prefix=_env_str("MQTT_TOPIC_PREFIX", default_prefix).rstrip("/"),
             mqtt_qos=_env_int("MQTT_QOS", 0),
             log_level=_env_str("LOG_LEVEL", "INFO").upper(),
         )

@@ -11,7 +11,8 @@ services:
       STALE_AFTER_SEC: "60"
       MQTT_HOST: "mosquitto"
       MQTT_PORT: "1883"
-      MQTT_TOPIC_PREFIX: "adsb"
+      # MQTT_TOPIC_PREFIX defaults to the hostname from ADSB_URL
+      # (e.g. "adsb.oarc.uk"). Override if you want a custom prefix.
       MQTT_CLIENT_ID: "adsb-mqtt"
       LOG_LEVEL: "INFO"
       # MQTT_USERNAME: "user"
