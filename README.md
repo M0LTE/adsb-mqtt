@@ -46,6 +46,16 @@ All via environment variables.
 | `MQTT_QOS` | `0` |
 | `LOG_LEVEL` | `INFO` |
 
+## Pull the prebuilt image
+
+Multi-arch images (linux/amd64, linux/arm64) are published to GHCR on
+every push to `main` and on tags:
+
+```sh
+docker pull ghcr.io/m0lte/adsb-mqtt:latest
+docker run --rm -e MQTT_HOST=your-broker ghcr.io/m0lte/adsb-mqtt:latest
+```
+
 ## Run with docker compose
 
 The provided `docker-compose.yml` includes a local Mosquitto broker for
