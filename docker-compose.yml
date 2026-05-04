@@ -1,0 +1,30 @@
+services:
+  adsb-mqtt:
+    build: .
+    image: adsb-mqtt:local
+    container_name: adsb-mqtt
+    restart: unless-stopped
+    environment:
+      ADSB_URL: "https://adsb.oarc.uk/re-api/?binCraft&zstd&box=-90,90,-180,180"
+      POLL_INTERVAL_SEC: "1.0"
+      STALE_AFTER_SEC: "60"
+      MQTT_HOST: "mosquitto"
+      MQTT_PORT: "1883"
+      MQTT_TOPIC_PREFIX: "adsb"
+      MQTT_CLIENT_ID: "adsb-mqtt"
+      LOG_LEVEL: "INFO"
+      # MQTT_USERNAME: "user"
+      # MQTT_PASSWORD: "pass"
+    depends_on:
+      - mosquitto
+
+  # Convenience broker for local testing. Remove or point at your own.
+  mosquitto:
+    image: eclipse-mosquitto:2
+    container_name: adsb-mosquitto
+    restart: unless-stopped
+    ports:
+      - "1883:1883"
+    command: >
+      sh -c "printf 'listener 1883\nallow_anonymous true\n' > /mosquitto/config/mosquitto.conf
+      && exec /docker-entrypoint.sh /usr/sbin/mosquitto -c /mosquitto/config/mosquitto.conf"
