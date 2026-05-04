@@ -1,7 +1,8 @@
 services:
   adsb-mqtt:
-    build: .
-    image: adsb-mqtt:local
+    image: ghcr.io/m0lte/adsb-mqtt:latest
+    # To build locally instead, comment out `image:` above and uncomment:
+    # build: .
     container_name: adsb-mqtt
     restart: unless-stopped
     environment:
